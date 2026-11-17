@@ -1,3 +1,26 @@
+<!-- thor-gyro-fork:start -->
+# Foundation Sunshine â€” AYN Thor gyro fork
+
+Personal fork of [AlkaidLab/foundation-sunshine](https://github.com/AlkaidLab/foundation-sunshine), the host half of a setup that streams PC games to an **AYN Thor** with native DualShock 4 gyro (ViGEmBus).
+
+Client side: [Zach200910/moonlight-vplus-aynthor-gyro](https://github.com/Zach200910/moonlight-vplus-aynthor-gyro) (Moonlight V+ with matching gyro fixes).
+
+## Changes (branch `gyro-priority`)
+
+The changes live on the `gyro-priority` branch, not on the default branch, which only carries this README.
+
+- **No stale gyro replay.** If no gyro sample has arrived for 50 ms, the virtual DS4 reports "not rotating" instead of repeating the last rate. A capture of the virtual DS4 showed motion freezing for 40â€“185 ms while the old rate was replayed, which games turned into camera drift.
+- **Input ahead of video.** The task-pool thread that delivers controller input (including gyro) to the virtual pad now runs at the same priority as the control-stream thread, so video capture and encoding can't preempt it.
+
+## Building
+
+Actions â†’ **Build and Release** â†’ Run workflow on `gyro-priority` with `rtx_hdr` = `OFF`, then install `Sunshine.*.WindowsInstaller.exe` from the `sunshine-windows-r*` artifact.
+
+Everything below this line is the upstream README.
+<!-- thor-gyro-fork:end -->
+
+---
+
 <p align="center"><picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/readme/show-dark.webp">
   <img src="assets/readme/show.webp" alt="Foundation Sunshine 展示图：衬线大标题，倾斜的控制面板和手机以及 HDR、帧率、主机延迟、DualSense 触觉增益、手机管理小组件，全部带白色贴纸描边。">

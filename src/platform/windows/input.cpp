@@ -130,6 +130,9 @@ namespace platf {
     thread_pool_util::ThreadPool::task_id_t repeat_task {};
     std::chrono::steady_clock::time_point last_report_ts;
 
+    // Arrival time of the last gyro sample from the client
+    std::chrono::steady_clock::time_point last_gyro_ts;
+
     gamepad_feedback_msg_t last_rumble;
     gamepad_feedback_msg_t last_rgb_led;
   };
@@ -2337,6 +2340,19 @@ namespace platf {
       // Timestamp is reported in 5.333us units
       gamepad.report.ds4.Report.wTimestamp += (uint16_t) (delta_ns.count() / 5333);
 
+      // Never replay a stale rotation rate. The client sends gyro at 100-250 Hz, so if no
+      // sample has arrived for 50 ms the uplink has stalled. Repeating the last rate while
+      // it is stalled makes the game keep turning the camera (drift); report "not rotating"
+      // instead until fresh samples arrive.
+      auto &ds4 = gamepad.report.ds4.Report;
+      if ((ds4.wGyroX || ds4.wGyroY || ds4.wGyroZ) &&
+          gamepad.last_gyro_ts != std::chrono::steady_clock::time_point {} &&
+          now - gamepad.last_gyro_ts > 50ms) {
+        ds4.wGyroX = 0;
+        ds4.wGyroY = 0;
+        ds4.wGyroZ = 0;
+      }
+
       // Send the report to the virtual device
       auto status = vigem_target_ds4_update_ex(vigem->client.get(), gamepad.gp.get(), gamepad.report.ds4);
       if (!VIGEM_SUCCESS(status)) {
@@ -2539,6 +2555,9 @@ namespace platf {
       return;
     }
 
+    if (motion.motionType == LI_MOTION_TYPE_GYRO) {
+      gamepad.last_gyro_ts = std::chrono::steady_clock::now();
+    }
     ds4_update_motion(gamepad, motion.motionType, motion.x, motion.y, motion.z);
     ds4_update_ts_and_send(vigem, motion.id.globalIndex);
 

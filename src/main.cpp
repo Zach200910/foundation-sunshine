@@ -489,6 +489,13 @@ main(int argc, char *argv[]) {
 
   task_pool.start(1);
 
+  // The task pool thread delivers controller input (including gyro) to the virtual
+  // gamepad. Run it at the same priority as the control stream thread so it is not
+  // preempted by video capture and encoding work.
+  task_pool.push([]() {
+    platf::adjust_thread_priority(platf::thread_priority_e::critical);
+  });
+
   // Create signal handler after logging has been initialized
   auto shutdown_event = mail::man->event<bool>(mail::shutdown);
   on_signal(SIGINT, [shutdown_event]() {

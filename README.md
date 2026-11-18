@@ -1,20 +1,18 @@
 <!-- thor-gyro-fork:start -->
-# Foundation Sunshine â€” AYN Thor gyro fork
+# Foundation Sunshine — AYN Thor gyro fork
 
 Personal fork of [AlkaidLab/foundation-sunshine](https://github.com/AlkaidLab/foundation-sunshine), the host half of a setup that streams PC games to an **AYN Thor** with native DualShock 4 gyro (ViGEmBus).
 
-Client side: [Zach200910/moonlight-vplus-aynthor-gyro](https://github.com/Zach200910/moonlight-vplus-aynthor-gyro) (Moonlight V+ with matching gyro fixes).
+**This fork is not needed for the gyro fix.** The cause was on the client: ENet's packet throttle in Moonlight V+ discarding gyro packets while the sticks were in use. It is fixed in [Zach200910/moonlight-vplus-aynthor-gyro](https://github.com/Zach200910/moonlight-vplus-aynthor-gyro), which works with stock Foundation Sunshine.
 
-## Changes (branch `gyro-priority`)
+## Branch `gyro-priority` (optional, experimental)
 
-The changes live on the `gyro-priority` branch, not on the default branch, which only carries this README.
+The default branch only carries this README. The `gyro-priority` branch has two untested host-side changes made while investigating:
 
-- **No stale gyro replay.** If no gyro sample has arrived for 50 ms, the virtual DS4 reports "not rotating" instead of repeating the last rate. A capture of the virtual DS4 showed motion freezing for 40â€“185 ms while the old rate was replayed, which games turned into camera drift.
-- **Input ahead of video.** The task-pool thread that delivers controller input (including gyro) to the virtual pad now runs at the same priority as the control-stream thread, so video capture and encoding can't preempt it.
+- If no gyro sample has arrived for 50 ms, the virtual DS4 reports "not rotating" instead of repeating the last rate.
+- The task-pool thread that delivers controller input to the virtual pad runs at the same priority as the control-stream thread.
 
-## Building
-
-Actions â†’ **Build and Release** â†’ Run workflow on `gyro-priority` with `rtx_hdr` = `OFF`, then install `Sunshine.*.WindowsInstaller.exe` from the `sunshine-windows-r*` artifact.
+Build: Actions → **Build and Release** → Run workflow on `gyro-priority` with `rtx_hdr` = `OFF`.
 
 Everything below this line is the upstream README.
 <!-- thor-gyro-fork:end -->
